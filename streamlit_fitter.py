@@ -25,7 +25,7 @@ def run():
 
     # 最初の数行を事前に確認
     try:
-        preview_df = pd.read_csv(uploaded_file, header=None, nrows=10)
+        preview_df = pd.read_csv(uploaded_file, header=None, nrows=10, encoding="utf-8")
     except Exception as e:
         st.error(f"CSV読み込み失敗: {e}")
         return
@@ -38,7 +38,7 @@ def run():
     uploaded_file.seek(0)
 
     try:
-        df = pd.read_csv(uploaded_file, header=header_row)
+        df = pd.read_csv(uploaded_file, header=header_row, encoding="utf-8")
     except Exception as e:
         st.error(f"再読み込みに失敗しました: {e}")
         return
