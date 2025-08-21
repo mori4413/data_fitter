@@ -125,7 +125,7 @@ def run():
 
     # === グラフ描画 & フィット処理 ===
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.plot(x_data, y_data, "x", label="Data", color="blue", alpha=0.4)
+    ax.plot(x_data, y_data, "o", markersize=2, label="Data", color="blue", alpha=0.4)
     ax.set_xlim(region)
 
     y_visible = y_data[(x_data >= region[0]) & (x_data <= region[1])]
