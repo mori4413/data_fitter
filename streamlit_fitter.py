@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from io import StringIO  # ✅ 追加
 
 # ==== フィット関数定義 ====
 def poly_fit(x, *coeffs):
@@ -23,29 +24,35 @@ def run():
         st.info("ファイルをアップロードしてください。")
         return
 
-    # 最初の数行を事前に確認
+    # ✅ ファイルを読み込み・復号化し StringIO に変換
+    uploaded_bytes = uploaded_file.read()
+    decoded = uploaded_bytes.decode("utf-8", errors="replace")
+    string_io = StringIO(decoded)
+
+    # ✅ プレビュー（最初の10行）
     try:
-        preview_df = pd.read_csv(uploaded_file, header=None, nrows=10, encoding="utf-8")
+        preview_df = pd.read_csv(StringIO(decoded), header=None, nrows=10, engine="python", on_bad_lines='skip')
+        st.markdown("### 🧾 ファイルのプレビュー（先頭10行）")
+        st.dataframe(preview_df)
     except Exception as e:
-        st.error(f"CSV読み込み失敗: {e}")
+        st.error(f"プレビュー読み込み失敗: {e}")
         return
 
-    st.markdown("### 🧾 ファイルのプレビュー（先頭10行）")
-    st.dataframe(preview_df)
+    # ✅ ヘッダー指定（0ベース）
+    header_row = st.number_input("ヘッダー行の行番号を指定（0ベース）", min_value=0, max_value=30, value=0, step=1)
 
-    # ヘッダー行選択
-    header_row = st.number_input("ヘッダー行の行番号を指定（0ベース）", min_value=0, max_value=9, value=0, step=1)
-    uploaded_file.seek(0)
-
+    # ✅ ヘッダー指定後にデータフレーム再読み込み
     try:
-        df = pd.read_csv(uploaded_file, header=header_row, encoding="utf-8")
+        string_io.seek(0)
+        df = pd.read_csv(string_io, header=header_row, engine="python", on_bad_lines='skip')
     except Exception as e:
-        st.error(f"再読み込みに失敗しました: {e}")
+        st.error(f"CSV再読み込み失敗: {e}")
         return
 
+    # ✅ 読み込んだデータの表示
     st.markdown("### 📊 読み込まれたデータ")
     st.dataframe(df.head())
-
+    
     colx = st.selectbox("X軸に使用する列", df.columns)
     coly = st.selectbox("Y軸に使用する列", df.columns)
 
